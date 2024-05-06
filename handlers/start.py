@@ -1,12 +1,14 @@
 import sqlite3
-from email import message
 
 from aiogram import Router, types
 from aiogram.filters import Command
+from aiogram.types import chat
 
-from config import bot, ADMIN_ID
+from config import bot, ADMIN_ID, MEDIA_PATH
 from database.a_db import AsyncDataBase
 from database import sql_queries
+from const import START_MENU_TEXT
+from keyboards.start import start_menu_keyboard
 
 router = Router()
 
@@ -27,10 +29,17 @@ async def start(message: types.Message, db=AsyncDataBase()):
     except sqlite3.IntegrityError:
         pass
 
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=f"Hello {message.from_user.first_name}"
+    animation_file = types.FSInputFile(MEDIA_PATH + "bot-ani.gif")
+    keyboard = start_menu_keyboard()
+    await bot.send_animation(
+        chat_id=message.from_user.id,
+        animation=animation_file,
+        caption=START_MENU_TEXT.format(
+            user=message.from_user.first_name
+        ),
+        reply_markup=await keyboard
     )
+
 
 
 @router.message(lambda message: message.text == "feruza")

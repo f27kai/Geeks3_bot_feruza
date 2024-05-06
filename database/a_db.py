@@ -10,11 +10,12 @@ class AsyncDataBase:
     async def create_db(self):
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute(sql_queries.CREATE_USER_TABLE)
+            await db.execute(sql_queries.CREATE_PROFILE_TABLE)
 
             await db.commit()
             print("База данных успешно создана")
 
-    async def execute_query(self, query: object, params: object = None, fetch: object = "None") -> object:
+    async def execute_query(self, query, params=None, fetch="None"):
         async with aiosqlite.connect(self.db_path) as db:
             db.row_factory = aiosqlite.Row
             cursor = await db.execute(query, params or ())
@@ -26,4 +27,11 @@ class AsyncDataBase:
             elif fetch == "All":
                 rows = await cursor.fetchall()
                 return [dict(rows) for rows in rows] if rows else []
+
+            elif fetch == "One":
+                row = await cursor.fetchone()
+                if row:
+                    return dict(row)
+
+
 
