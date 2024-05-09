@@ -11,6 +11,7 @@ class AsyncDataBase:
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute(sql_queries.CREATE_USER_TABLE)
             await db.execute(sql_queries.CREATE_PROFILE_TABLE)
+            await db.execute(sql_queries.CREATE_LIKE_DISLIKE_TABLE)
 
             await db.commit()
             print("База данных успешно создана")
@@ -30,8 +31,7 @@ class AsyncDataBase:
 
             elif fetch == "One":
                 row = await cursor.fetchone()
-                if row:
-                    return dict(row)
+                return dict(row) if row else None
 
 
 

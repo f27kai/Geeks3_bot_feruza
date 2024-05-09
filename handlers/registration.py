@@ -35,6 +35,14 @@ async def registration(call: types.CallbackQuery, state: FSMContext):
     await state.set_state(RegistrationStates.nickname)
 
 
+@router.callback_query(lambda call: call.data == "update_profile")
+async def re_registration(call: types.CallbackQuery, state: FSMContext):
+    await bot.send_message(
+        chat_id=call.from_user.id,
+        text = "Пожалуйста, напишите ваш никнейм!"
+    )
+    await state.set_state(RegistrationStates.nickname)
+
 @router.message(RegistrationStates.nickname)
 async def process_nickname(message: types.Message, state: FSMContext):
     await state.update_data(nickname=message.text)
@@ -97,7 +105,32 @@ async def process_photo(message: types.Message, state: FSMContext, db=AsyncDataB
 
     data = await state.get_data()
     photo = FSInputFile("media/" + file_path)
-    try:
+    profile = await db.execute_query(
+        query=sql_queries.READ_PROFLE_TABLE,
+        params=(
+            message.from_user.id,
+        ),
+        fetch="One"
+    )
+    if profile:
+        await db.execute_query(
+            query=sql_queries.UPDATE_PROFILE_TABLE,
+            params=(
+                data['nickname'],
+                data['phone_number'],
+                data['e_mail'],
+                data['bio'],
+                "media/" + file_path,
+                message.from_user.id
+            ),
+            fetch="None"
+        )
+
+        await bot.send_message(
+            chat_id=message.from_user.id,
+            text="Вы перезагистрировали, успешно!"
+        )
+    else:
         await db.execute_query(
             query=sql_queries.INSERT_PROFILE_TABLE,
             params=(
@@ -111,13 +144,11 @@ async def process_photo(message: types.Message, state: FSMContext, db=AsyncDataB
             ),
             fetch="None"
         )
-    except sqlite3.IntegrityError:
+
         await bot.send_message(
             chat_id=message.from_user.id,
-            text="Наверное, вы уже зарегистрировались!"
+            text="Вы зарегистрировали, успешно!"
         )
-        return
-
 
 
 
@@ -133,13 +164,6 @@ async def process_photo(message: types.Message, state: FSMContext, db=AsyncDataB
     )
 
 
-
-    await bot.send_message(
-        chat_id=message.from_user.id,
-        text="Вы зарегистрировали, успешно!"
-    )
-
-
 @router.callback_query(lambda call: call.data == "profile")
 
 async def profile(call: types.CallbackQuery, state: FSMContext, db=AsyncDataBase()):
@@ -148,7 +172,9 @@ async def profile(call: types.CallbackQuery, state: FSMContext, db=AsyncDataBase
     if telegram_id:
         users_data = await db.execute_query(
             query=sql_queries.READ_PROFLE_TABLE,
-            params=(telegram_id,),
+            params=(
+                call.from_user.id,
+            ),
             fetch="One"
         )
     print(users_data)
@@ -160,7 +186,7 @@ async def profile(call: types.CallbackQuery, state: FSMContext, db=AsyncDataBase
 
 
     if users_data:
-        photo = FSInputFile(photo_path)
+        photo = types.FSInputFile(photo_path)
         print(photo)
         await bot.send_photo(
 
