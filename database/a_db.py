@@ -1,3 +1,5 @@
+import sqlite3
+
 import aiosqlite
 from database import sql_queries
 
@@ -12,6 +14,13 @@ class AsyncDataBase:
             await db.execute(sql_queries.CREATE_USER_TABLE)
             await db.execute(sql_queries.CREATE_PROFILE_TABLE)
             await db.execute(sql_queries.CREATE_LIKE_DISLIKE_TABLE)
+            await db.execute(sql_queries.CREATE_REVERENCE_TABLE)
+
+            try:
+                await db.execute(sql_queries.ALTER_USER_TABLE_V1)
+                await db.execute(sql_queries.ALTER_USER_TABLE_V2)
+            except sqlite3.OperationalError:
+                pass
 
             await db.commit()
             print("База данных успешно создана")

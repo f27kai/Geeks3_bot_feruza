@@ -22,17 +22,18 @@ async def start_menu_keyboard():
         callback_data="view_profiles"
     )
 
-    proverka = InlineKeyboardButton(
-        text="proverka",
-        callback_data="proverka"
+    reverence_button = InlineKeyboardButton(
+        text="Reverence menu",
+        callback_data="reverence_menu"
     )
+
 
     markup = InlineKeyboardMarkup(
         inline_keyboard=[
             [registration_button],
             [profile_user],
             [profiles_button],
-            [proverka],
+            [reverence_button],
         ]
     )
     return markup

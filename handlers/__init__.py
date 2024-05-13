@@ -4,7 +4,7 @@ from . import (
     registration,
     profile,
     like_dislike,
-    proverka
+    reverence
 )
 
 
@@ -14,6 +14,6 @@ def setup_routes() -> Router:
     router.include_router(registration.router)
     router.include_router(profile.router)
     router.include_router(like_dislike.router)
-    router.include_router(proverka.router)
+    router.include_router(reverence.router)
 
     return router

@@ -164,43 +164,6 @@ async def process_photo(message: types.Message, state: FSMContext, db=AsyncDataB
     )
 
 
-@router.callback_query(lambda call: call.data == "profile")
-
-async def profile(call: types.CallbackQuery, state: FSMContext, db=AsyncDataBase()):
-    telegram_id = call.from_user.id
-    print(telegram_id)
-    if telegram_id:
-        users_data = await db.execute_query(
-            query=sql_queries.READ_PROFLE_TABLE,
-            params=(
-                call.from_user.id,
-            ),
-            fetch="One"
-        )
-    print(users_data)
-    photo_path = users_data['PHOTO']
-
-    print("MEDIA_PATH:", MEDIA_PATH)
-    print("photo_path:", photo_path)
-    print(MEDIA_PATH + photo_path)
-
-
-    if users_data:
-        photo = types.FSInputFile(photo_path)
-        print(photo)
-        await bot.send_photo(
-
-            chat_id=telegram_id,
-            photo=photo,
-            caption=PROFILE_TEXT.format(
-                nickname = users_data['NICKNAME'],
-                phone_number = users_data['PHONE_NUMBER'],
-                e_mail = users_data['EMAIL'],
-                bio = users_data['BIO'],
-            )
-        )
-    else:
-        print("Ошибка: MEDIA_PATH или photo_path пусты или None")
 
 
 

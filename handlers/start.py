@@ -1,8 +1,9 @@
 import sqlite3
 
-from aiogram import Router, types
+from aiogram import Router, types, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import chat
+from aiogram.utils.deep_linking import create_start_link
 
 from config import bot, ADMIN_ID, MEDIA_PATH
 from database.a_db import AsyncDataBase
@@ -14,6 +15,13 @@ router = Router()
 
 @router.message(Command('start'))
 async def start(message: types.Message, db=AsyncDataBase()):
+
+    command = message.text
+    token = command.split()
+
+    if len(token) > 1:
+        await process_reverence_link(token[1], message)
+
     try:
         await db.execute_query(
             query=sql_queries.INSERT_USER_TABLE,
@@ -23,6 +31,8 @@ async def start(message: types.Message, db=AsyncDataBase()):
                 message.from_user.username,
                 message.from_user.first_name,
                 message.from_user.last_name,
+                None,
+                0
             ),
             fetch = "None"
         )
@@ -40,6 +50,53 @@ async def start(message: types.Message, db=AsyncDataBase()):
         reply_markup=await keyboard
     )
 
+
+async def process_reverence_link(token, message, db=AsyncDataBase()):
+    link = await create_start_link(bot=bot, payload=token)
+    owner = await db.execute_query(
+            query=sql_queries.READ_USER_TABLE_BY_LINK,
+            params=(
+                link,
+            ),
+            fetch = "One"
+        )
+
+    if owner["TELEGRAM_ID"] == message.from_user.id:
+        await bot.send_message(
+            chat_id=message.from_user.id,
+            text = "You can not use your own link"
+        )
+        return
+
+    try:
+        await db.execute_query(
+            query=sql_queries.INSERT_REVERENCE_USER,
+            params=(
+                None,
+                owner["TELEGRAM_ID"],
+                message.from_user.id,
+            ),
+            fetch="None"
+        )
+
+        await db.execute_query(
+            query=sql_queries.UPDATE_REVERENCE_USER_BALANCE,
+            params=(
+                owner["TELEGRAM_ID"],
+            ),
+            fetch="None"
+        )
+
+        await bot.send_message(
+            chat_id=owner["TELEGRAM_ID"],
+            text = "Вы получили свой КЭШБЭК!\n"
+                   "Поздравляем!"
+        )
+    except sqlite3.IntegrityError:
+        await bot.send_message(
+            chat_id=message.from_user.id,
+            text="Ты уже использовал эту линк"
+        )
 
 
 @router.message(lambda message: message.text == "feruza")
