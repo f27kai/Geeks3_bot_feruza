@@ -48,7 +48,6 @@ async def start_menu_keyboard():
     )
 
 
-
     markup = InlineKeyboardMarkup(
         inline_keyboard=[
             [registration_button],

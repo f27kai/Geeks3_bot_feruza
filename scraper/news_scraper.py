@@ -11,7 +11,6 @@ class NewsScraper:
 
     DORAM_LINK_XPATH = '//div[@class="short-cinematic short-cinematic--episode"]/a/@href'
 
-
     def scrape_data(self):
         response = requests.get(self.URL, headers=self.HEADERS)
         tree = Selector(response.text)

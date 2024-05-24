@@ -115,7 +115,6 @@ async def admin_feruza(message: types.Message, db=AsyncDataBase()):
             text="К сожалению, вы не являетесь админом. Из-за этого мы не можем дать вам доступ"
         )
 
-
 @router.callback_query(lambda call: call.data == "news")
 async def laters_news_links(call: types.CallbackQuery, db=AsyncDataBase()):
     scraper = NewsScraper()
