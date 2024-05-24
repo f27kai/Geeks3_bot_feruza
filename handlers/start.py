@@ -10,6 +10,7 @@ from database.a_db import AsyncDataBase
 from database import sql_queries
 from const import START_MENU_TEXT
 from keyboards.start import start_menu_keyboard
+from scraper.news_scraper import NewsScraper
 
 router = Router()
 
@@ -114,5 +115,32 @@ async def admin_feruza(message: types.Message, db=AsyncDataBase()):
             text="К сожалению, вы не являетесь админом. Из-за этого мы не можем дать вам доступ"
         )
 
+
+@router.callback_query(lambda call: call.data == "news")
+async def laters_news_links(call: types.CallbackQuery, db=AsyncDataBase()):
+    scraper = NewsScraper()
+    data = scraper.scrape_data()
+    for i in data:
+        dorams_link = await db.execute_query(
+            query=sql_queries.READ_DORAMS_TABLE,
+            params=(
+                i,
+            ),
+            fetch="All"
+        )
+        await bot.send_message(
+            chat_id=call.message.chat.id,
+            text="https://dorama.land" + i
+        )
+
+        if not dorams_link:
+            await db.execute_query(
+                query=sql_queries.INSERT_DORAM_TABLE,
+                params=(
+                    None,
+                    i
+                ),
+                fetch="None"
+            )
 
 

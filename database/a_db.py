@@ -17,6 +17,7 @@ class AsyncDataBase:
             await db.execute(sql_queries.CREATE_REVERENCE_TABLE)
             await db.execute(sql_queries.CREATE_DONATE_TRANSACTIONS_TABLE)
             await db.execute(sql_queries.CREATE_SEND_MONEY_TRANSACTIONS_TABLE)
+            await db.execute(sql_queries.CREATE_DORAMS_TABLE)
 
             try:
                 await db.execute(sql_queries.ALTER_USER_TABLE_V1)
