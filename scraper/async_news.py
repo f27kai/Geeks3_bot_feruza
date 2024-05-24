@@ -17,7 +17,7 @@ class AsyncNewsScraper:
         return Selector(response.text)
 
     async def scrape_data(self):
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(headers=self.HEADERS) as client:
             html = await self.fetch(client)
             doram_links = html.xpath(self.DORAM_LINK_XPATH).getall()
             print(doram_links)
