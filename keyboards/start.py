@@ -27,6 +27,21 @@ async def start_menu_keyboard():
         callback_data="reverence_menu"
     )
 
+    like_history_button = InlineKeyboardButton(
+        text="Liked profiles",
+        callback_data="history"
+    )
+
+    wallet_id_button = InlineKeyboardButton(
+        text="Wallet ID",
+        callback_data="WalletId"
+    )
+
+    send_money_button = InlineKeyboardButton(
+        text="Send Money",
+        callback_data="Sendmoney"
+    )
+
 
     markup = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -34,6 +49,9 @@ async def start_menu_keyboard():
             [profile_user],
             [profiles_button],
             [reverence_button],
+            [like_history_button],
+            [wallet_id_button],
+            [send_money_button],
         ]
     )
     return markup
